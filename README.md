@@ -1,1 +1,231 @@
 # Secure-3-Tier-App-EC2
+
+This guide outlines deploying a secure web application on an Amazon EC2 instance using Nginx as a web server.
+
+### Step 1: Create EC2 Instance and connect it to the Linux terminal
+
+![Screenshot (263).png](https://prod-files-secure.s3.us-west-2.amazonaws.com/2d6bce8c-a731-496d-b7c1-ea861342fea1/14b62ee0-40fd-4da5-a9d3-f956cbddb69a/Screenshot_(263).png)
+
+### Step 2: Install Nginx, Node.js, and NVM
+
+- Run following commands to install, enable and start Nginx.
+
+```jsx
+sudo apt update
+sudo apt install nginx
+sudo systemctl enable nginx
+sudo systemctl start nginx
+```
+
+![Screenshot (265).png](https://prod-files-secure.s3.us-west-2.amazonaws.com/2d6bce8c-a731-496d-b7c1-ea861342fea1/35ee99dd-68ae-404f-adc2-e3e0edda9d54/Screenshot_(265).png)
+
+- Install NVM (Node Version Manager)
+
+```jsx
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.0/install.sh | bash
+```
+
+- Load NVM into your shell
+
+```jsx
+source ~/.nvm/nvm.sh
+```
+
+- Install a desired Node.js version
+
+```jsx
+nvm install 22
+```
+
+### Step 3: Clone Git Repository, Set Up Project, and Build for Deployment
+
+**Clone Git Repository**
+
+- Navigate to the following directory
+
+```jsx
+cd /var/www/html/
+```
+
+- Clone the git repository
+
+```jsx
+git clone https://github.com/your-username/your-repository.git
+Example: sudo git clone https://github.com/MonkeyDmagnas/Demo-wanderlust.git
+```
+
+**Note:** If you're using a private repository, you'll need to provide your GitHub credentials when prompted.
+
+**Install dependencies**
+
+- Navigate to the frontend directory
+
+```jsx
+cd /var/www/html/frontend
+```
+
+- Install project dependencies
+
+```jsx
+npm install
+```
+
+- Build the frontend application
+
+```jsx
+npm run build
+```
+
+This command will create an optimized version of your frontend code in a `dist` or `build` folder.
+
+**Install MongoDB**
+
+- Execute following commands to install MongoDB
+
+```jsx
+sudo apt-get install gnupg curl
+curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc | \
+   sudo gpg -o /usr/share/keyrings/mongodb-server-7.0.gpg \
+   --dearmor
+echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-7.0.list
+sudo apt-get update
+sudo apt-get install -y mongodb-org
+```
+
+- Enable and Start MongoDB
+
+```jsx
+sudo systemctl enable mongod
+sudo systemctl start mongod
+```
+
+- Verify MongoDB Status
+
+```jsx
+sudo systemctl status mongod
+```
+
+![Screenshot (266).png](https://prod-files-secure.s3.us-west-2.amazonaws.com/2d6bce8c-a731-496d-b7c1-ea861342fea1/af6e8744-3ef8-45b3-9bb4-1c00f30218d2/Screenshot_(266).png)
+
+**Import MongoDB Data**
+
+- Navigate to backend directory
+
+```jsx
+cd /var/www/html/Demo-wanderlust/backend
+mongoimport --db wanderlust --collection posts --file ./data/sample_posts.json --jsonArray
+```
+
+**Start Frontend and Backend with PM2**
+
+- Install PM2
+
+```jsx
+npm install -g pm2
+```
+
+- Start the frontend application
+
+```jsx
+cd /var/www/html/Demo-wanderlust/frontend
+pm2 start npm --name wanderlust-frontend -- run dev -- --host
+```
+
+- Start the backend application
+
+```jsx
+cd /var/www/html/Demo-wanderlust/backend
+pm2 start npm --name wanderlust-backend -- start -- --host
+```
+
+### Step 4: Configure Nginx
+
+- Navigate to the following directory
+
+```jsx
+cd /etc/nginx/sites-available/
+```
+
+- Create a Nginx configuration file . (You can edit existing default file)
+
+```jsx
+vi wanderlust.com
+```
+
+In my case, I delete default file from both sites-available and sites-enable directory and create new nginx configuration file inside sites-available.
+
+- Add following configuration inside [wanderlust.com](http://wanderlust.com)
+
+```jsx
+server {
+  listen 80;
+  listen [::]:80;
+
+  listen 443 ssl;
+  server_name ec2-34-228-113-105.compute-1.amazonaws.com;
+
+  ssl_certificate /var/www/html/Demo-wanderlust/frontend/self-signed.crt;
+  ssl_certificate_key /var/www/html/Demo-wanderlust/frontend/private.key;
+
+  location / {
+    proxy_pass http://localhost:5173;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection 'upgrade';
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_cache_bypass $http_upgrade;
+  }
+
+  location /api {
+    proxy_pass http://localhost:5000;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection 'upgrade';
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_cache_bypass $http_upgrade;
+  }
+
+  # Proxy requests to the MongoDB database
+  location /mongodb {
+    proxy_pass http://localhost:27017;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection 'upgrade';
+    proxy_set_header Host $host;
+    proxy_cache_bypass $http_upgrade;
+  }
+}
+```
+
+- Link the Configuration
+
+```jsx
+sudo ln -s /etc/nginx/sites-available/wanderlust.com /etc/nginx/sites-enabled/wanderlust.com
+```
+
+- Reload Nginx
+
+```jsx
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
+### Step 5: Configure Nginx for HTTPS
+
+root@ip-172-31-82-198:~# mkdir openssl
+root@ip-172-31-82-198:~# cd openssl/
+root@ip-172-31-82-198:~/openssl# openssl req \
+-newkey rsa:2048 -nodes -keyout private.key \
+-out wanderlust.csr
+
+![Screenshot (271).png](https://prod-files-secure.s3.us-west-2.amazonaws.com/2d6bce8c-a731-496d-b7c1-ea861342fea1/64c6fba4-7877-4369-8fe1-9360a4ed2771/Screenshot_(271).png)
+
+![Screenshot (266).png](https://prod-files-secure.s3.us-west-2.amazonaws.com/2d6bce8c-a731-496d-b7c1-ea861342fea1/9c6459ee-2050-4a95-94c6-f4dcc470e93c/Screenshot_(266).png)
+
+![Screenshot (270).png](https://prod-files-secure.s3.us-west-2.amazonaws.com/2d6bce8c-a731-496d-b7c1-ea861342fea1/0556ac02-afe3-4977-a72c-3ae332bb6fe6/Screenshot_(270).png)
+
+---
