@@ -214,10 +214,15 @@ sudo systemctl reload nginx
 ### Step 5: Configure Nginx for HTTPS
 
 root@ip-172-31-82-198:~# mkdir openssl
+
 root@ip-172-31-82-198:~# cd openssl/
+
 root@ip-172-31-82-198:~/openssl# openssl req \
+
 -newkey rsa:2048 -nodes -keyout private.key \
+
 -out wanderlust.csr
+
 ![Screenshot (271)](https://github.com/user-attachments/assets/5f49a233-d85d-4274-9a8c-64bab41adeb6)
 ![Screenshot (266)](https://github.com/user-attachments/assets/59f0e14e-9cc4-4a66-b6fc-8ef8fc51476a)
 ![Screenshot (270)](https://github.com/user-attachments/assets/e932a644-cbc5-4f88-a370-e6bcb0084adc)
