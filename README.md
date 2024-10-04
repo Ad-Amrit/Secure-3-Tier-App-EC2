@@ -3,8 +3,7 @@
 This guide outlines deploying a secure web application on an Amazon EC2 instance using Nginx as a web server.
 
 ### Step 1: Create EC2 Instance and connect it to the Linux terminal
-
-![Screenshot (263).png](https://prod-files-secure.s3.us-west-2.amazonaws.com/2d6bce8c-a731-496d-b7c1-ea861342fea1/14b62ee0-40fd-4da5-a9d3-f956cbddb69a/Screenshot_(263).png)
+![Screenshot (263)](https://github.com/user-attachments/assets/f310549b-0aeb-4a7f-acd8-1cb7dfd35605)
 
 ### Step 2: Install Nginx, Node.js, and NVM
 
@@ -16,8 +15,7 @@ sudo apt install nginx
 sudo systemctl enable nginx
 sudo systemctl start nginx
 ```
-
-![Screenshot (265).png](https://prod-files-secure.s3.us-west-2.amazonaws.com/2d6bce8c-a731-496d-b7c1-ea861342fea1/35ee99dd-68ae-404f-adc2-e3e0edda9d54/Screenshot_(265).png)
+![Screenshot (265)](https://github.com/user-attachments/assets/af0afdf1-b8a2-406c-9358-bfffae5174da)
 
 - Install NVM (Node Version Manager)
 
@@ -104,8 +102,7 @@ sudo systemctl start mongod
 ```jsx
 sudo systemctl status mongod
 ```
-
-![Screenshot (266).png](https://prod-files-secure.s3.us-west-2.amazonaws.com/2d6bce8c-a731-496d-b7c1-ea861342fea1/af6e8744-3ef8-45b3-9bb4-1c00f30218d2/Screenshot_(266).png)
+![Screenshot (266)](https://github.com/user-attachments/assets/ae885baa-7c46-4b93-9476-62dda9c668df)
 
 **Import MongoDB Data**
 
@@ -221,11 +218,8 @@ root@ip-172-31-82-198:~# cd openssl/
 root@ip-172-31-82-198:~/openssl# openssl req \
 -newkey rsa:2048 -nodes -keyout private.key \
 -out wanderlust.csr
-
-![Screenshot (271).png](https://prod-files-secure.s3.us-west-2.amazonaws.com/2d6bce8c-a731-496d-b7c1-ea861342fea1/64c6fba4-7877-4369-8fe1-9360a4ed2771/Screenshot_(271).png)
-
-![Screenshot (266).png](https://prod-files-secure.s3.us-west-2.amazonaws.com/2d6bce8c-a731-496d-b7c1-ea861342fea1/9c6459ee-2050-4a95-94c6-f4dcc470e93c/Screenshot_(266).png)
-
-![Screenshot (270).png](https://prod-files-secure.s3.us-west-2.amazonaws.com/2d6bce8c-a731-496d-b7c1-ea861342fea1/0556ac02-afe3-4977-a72c-3ae332bb6fe6/Screenshot_(270).png)
+![Screenshot (271)](https://github.com/user-attachments/assets/5f49a233-d85d-4274-9a8c-64bab41adeb6)
+![Screenshot (266)](https://github.com/user-attachments/assets/59f0e14e-9cc4-4a66-b6fc-8ef8fc51476a)
+![Screenshot (270)](https://github.com/user-attachments/assets/e932a644-cbc5-4f88-a370-e6bcb0084adc)
 
 ---
