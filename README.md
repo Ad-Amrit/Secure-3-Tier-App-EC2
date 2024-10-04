@@ -151,7 +151,7 @@ vi wanderlust.com
 
 In my case, I delete default file from both sites-available and sites-enable directory and create new nginx configuration file inside sites-available.
 
-- Add following configuration inside [wanderlust.com](http://wanderlust.com)
+- Add following configuration inside wanderlust.com
 
 ```jsx
 server {
